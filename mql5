@@ -1,0 +1,125 @@
+
+// Trader Starter Kit
+// Developer's site: forexroboteasy.com
+// Development: Forex Robot Easy Team
+
+// Import necessary libraries
+#include <Trade\Trade.mqh>
+
+// Initialize Trend Analysis function
+bool TrendAnalysis(double[] highs, double[] lows)
+{
+    bool uptrend = false;
+    bool downtrend = false;
+
+    // Check for higher highs and higher lows
+    for(int i=1; i<ArraySize(highs); i++)
+    {
+        if(highs[i] > highs[i-1] && lows[i] > lows[i-1])
+        {
+            uptrend = true;
+        }
+        else if(highs[i] < highs[i-1] && lows[i] < lows[i-1])
+        {
+            downtrend = true;
+        }
+    }
+
+    // Return true if either uptrend or downtrend is detected
+    return (uptrend || downtrend);
+}
+
+// Calculate Area of Value
+double AreaOfValue(double[] prices)
+{
+    double highest = 0;
+    double lowest = prices[0];
+
+    // Find highest and lowest prices
+    for(int i=1; i<ArraySize(prices); i++)
+    {
+        if(prices[i] > highest)
+        {
+            highest = prices[i];
+        }
+        else if(prices[i] < lowest)
+        {
+            lowest = prices[i];
+        }
+    }
+
+    // Calculate Area of Value
+    double areaOfValue = highest - lowest;
+
+    return areaOfValue;
+}
+
+// Analyze trading ranges and identify buying low and selling high opportunities
+void TradingRangeAnalysis(double[] prices)
+{
+    double highest = 0;
+    double lowest = prices[0];
+    
+    // Find highest and lowest prices
+    for(int i=1; i<ArraySize(prices); i++)
+    {
+        if(prices[i] > highest)
+        {
+            highest = prices[i];
+        }
+        else if(prices[i] < lowest)
+        {
+            lowest = prices[i];
+        }
+    }
+
+    double buyLow = lowest - (highest - lowest) * 0.2;
+    double sellHigh = highest + (highest - lowest) * 0.2;
+
+    // Print buying low and selling high opportunities
+    Print('Buy Low: ', buyLow);
+    Print('Sell High: ', sellHigh);
+}
+
+// Entry-trigger function based on T.A.E framework
+void EntryTrigger(double[] highs, double[] lows, double[] prices)
+{
+    bool trend = TrendAnalysis(highs, lows);
+
+    if(trend)
+    {
+        double areaOfValue = AreaOfValue(prices);
+
+        // Check if price is within Area of Value
+        if(prices[0] >= prices[1] && prices[0] <= prices[1] + areaOfValue)
+        {
+            // Execute trade entry
+            Trade.Buy();
+        }
+        else if(prices[0] <= prices[1] && prices[0] >= prices[1] - areaOfValue)
+        {
+            // Execute trade entry
+            Trade.Sell();
+        }
+    }
+}
+
+// Main function
+void OnTick()
+{
+    // Sample data for testing
+    double[] highs = {1.2, 1.4, 1.6, 1.8, 2.0};
+    double[] lows = {1.0, 1.2, 1.4, 1.6, 1.8};
+    double[] prices = {1.2, 1.4, 1.6, 1.8, 2.0};
+
+    // Call EntryTrigger function
+    EntryTrigger(highs, lows, prices);
+}
+
+// Test and debug the code
+void OnDeinit(const int reason_code)
+{
+    // Code for testing and debugging
+}
+
+// Add necessary comments to the code
